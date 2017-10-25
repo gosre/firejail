@@ -6,6 +6,7 @@ include /etc/firejail/tar.local
 # Persistent global definitions
 include /etc/firejail/globals.local
 
+blacklist /run/user/*/bus
 blacklist /tmp/.X11-unix
 
 hostname tar
@@ -23,5 +24,6 @@ tracelog
 private-bin sh,bash,tar,gtar,compress,gzip,lzma,xz,bzip2,lbzip2,lzip,lzop
 private-dev
 private-etc passwd,group,localtime
+private-lib
 
 include /etc/firejail/default.profile

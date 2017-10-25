@@ -242,7 +242,8 @@ int profile_check_line(char *ptr, int lineno, const char *fname) {
 		return 0;
 	}
 	else if (strcmp(ptr, "allow-private-blacklist") == 0) {
-		arg_allow_private_blacklist = 1;
+		if (!arg_quiet)
+			fprintf(stderr, "--allow-private-blacklist was deprecated\n");
 		return 0;
 	}
 	else if (strcmp(ptr, "netfilter") == 0) {
@@ -1021,6 +1022,11 @@ int profile_check_line(char *ptr, int lineno, const char *fname) {
 			sscanf(ptr + 14, "%llu", &cfg.rlimit_nofile);
 			arg_rlimit_nofile = 1;
 		}
+		else if (strncmp(ptr, "rlimit-cpu ", 11) == 0) {
+			check_unsigned(ptr + 11, "Error: invalid rlimit in profile file: ");
+			sscanf(ptr + 11, "%llu", &cfg.rlimit_cpu);
+			arg_rlimit_cpu = 1;
+		}
 		else if (strncmp(ptr, "rlimit-nproc ", 13) == 0) {
 			check_unsigned(ptr + 13, "Error: invalid rlimit in profile file: ");
 			sscanf(ptr + 13, "%llu", &cfg.rlimit_nproc);
@@ -1048,7 +1054,12 @@ int profile_check_line(char *ptr, int lineno, const char *fname) {
 
 		return 0;
 	}
-
+	
+	if (strncmp(ptr, "timeout ", 8) == 0) {
+		cfg.timeout = extract_timeout(ptr +8);
+		return 0;
+	}
+	
 	if (strncmp(ptr, "join-or-start ", 14) == 0) {
 		// try to join by name only
 		pid_t pid;

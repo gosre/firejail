@@ -125,21 +125,21 @@ static void etc_callback(char *ptr) {
 	etc_out = filedb_add(etc_out, ptr);
 }
 
-void build_etc(const char *fname) {
+void build_etc(const char *fname, FILE *fp) {
 	assert(fname);
 	
 	process_files(fname, "/etc", etc_callback);
 	
-	printf("private-etc ");
+	fprintf(fp, "private-etc ");
 	if (etc_out == NULL)
-		printf("none\n");
+		fprintf(fp, "none\n");
 	else {
 		FileDB *ptr = etc_out;
 		while (ptr) {
-			printf("%s,", ptr->fname);
+			fprintf(fp, "%s,", ptr->fname);
 			ptr = ptr->next;
 		}
-		printf("\n");
+		fprintf(fp, "\n");
 	}	
 }
 
@@ -160,15 +160,52 @@ static void var_callback(char *ptr) {
 		var_out = filedb_add(var_out, ptr);
 }
 
-void build_var(const char *fname) {
+void build_var(const char *fname, FILE *fp) {
 	assert(fname);
 
 	process_files(fname, "/var", var_callback);
 	
 	if (var_out == NULL)
-		printf("blacklist /var\n");
+		fprintf(fp, "blacklist /var\n");
 	else
-		filedb_print(var_out, "whitelist ");
+		filedb_print(var_out, "whitelist ", fp);
+}
+
+
+//*******************************************
+// usr/share directory
+//*******************************************
+static FileDB *share_out = NULL;
+static void share_callback(char *ptr) {
+	// extract the directory:
+	assert(strncmp(ptr, "/usr/share", 10) == 0);
+	char *p1 = ptr + 10;
+	if (*p1 != '/')
+		return;
+	p1++;
+	if (*p1 == '/')	// double '/'
+		p1++;
+	if (*p1 == '\0')
+		return;
+
+	// "/usr/share/bash-completion/bash_completion"  becomes "/usr/share/bash-completion"
+	char *p2 = strchr(p1, '/');
+	if (p2)
+		*p2 = '\0';
+
+	// store the file
+	share_out = filedb_add(share_out, ptr);
+}
+
+void build_share(const char *fname, FILE *fp) {
+	assert(fname);
+
+	process_files(fname, "/usr/share", share_callback);
+
+	if (share_out == NULL)
+		fprintf(fp, "blacklist /usr/share\n");
+	else
+		filedb_print(share_out, "whitelist ", fp);
 }
 
 //*******************************************
@@ -179,21 +216,21 @@ static void tmp_callback(char *ptr) {
 	filedb_add(tmp_out, ptr);
 }
 
-void build_tmp(const char *fname) {
+void build_tmp(const char *fname, FILE *fp) {
 	assert(fname);
 	
 	process_files(fname, "/tmp", tmp_callback);
 	
 	if (tmp_out == NULL)
-		printf("private-tmp\n");
+		fprintf(fp, "private-tmp\n");
 	else {
-		printf("\n");
-		printf("# private-tmp\n");
-		printf("# File accessed in /tmp directory:\n");
-		printf("# ");
+		fprintf(fp, "\n");
+		fprintf(fp, "# private-tmp\n");
+		fprintf(fp, "# File accessed in /tmp directory:\n");
+		fprintf(fp, "# ");
 		FileDB *ptr = tmp_out;
 		while (ptr) {
-			printf("%s,", ptr->fname);
+			fprintf(fp, "%s,", ptr->fname);
 			ptr = ptr->next;
 		}
 		printf("\n");
@@ -257,24 +294,24 @@ static void dev_callback(char *ptr) {
 		filedb_add(dev_out, ptr);
 }
 
-void build_dev(const char *fname) {
+void build_dev(const char *fname, FILE *fp) {
 	assert(fname);
 	
 	process_files(fname, "/dev", dev_callback);
 	
 	if (dev_out == NULL)
-		printf("private-dev\n");
+		fprintf(fp, "private-dev\n");
 	else {
-		printf("\n");
-		printf("# private-dev\n");
-		printf("# This is the list of devices accessed (on top of regular private-dev devices:\n");
-		printf("# ");
+		fprintf(fp, "\n");
+		fprintf(fp, "# private-dev\n");
+		fprintf(fp, "# This is the list of devices accessed (on top of regular private-dev devices:\n");
+		fprintf(fp, "# ");
 		FileDB *ptr = dev_out;
 		while (ptr) {
-			printf("%s,", ptr->fname);
+			fprintf(fp, "%s,", ptr->fname);
 			ptr = ptr->next;
 		}
-		printf("\n");
+		fprintf(fp, "\n");
 	}
 }
 

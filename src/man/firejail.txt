@@ -87,15 +87,6 @@ Example:
 .br
 $ firejail  --allow-debuggers --profile=/etc/firejail/firefox.profile strace -f firefox
 .TP
-\fB\-\-allow-private-blacklist
-Allow blacklisting files in private home directory. By default these blacklists are disabled.
-.br
-
-.br
-Example:
-.br
-$ firejail  --allow-private-blacklist --private=~/priv-dir --blacklist=~/.mozilla
-.TP
 \fB\-\-allusers
 All directories under /home are visible inside the sandbox. By default, only current user home directory is visible.
 .br
@@ -155,7 +146,7 @@ $ firejail "\-\-blacklist=/home/username/My Virtual Machines"
 $ firejail \-\-blacklist=/home/username/My\\ Virtual\\ Machines
 .TP
 \fB\-\-build
-The command builds a whitelisted profile. If /usr/bin/strace is installed on the system, it also
+The command builds a whitelisted profile. The profile is printed on the screen. If /usr/bin/strace is installed on the system, it also
 builds a whitelisted seccomp profile. The program is run in a very relaxed sandbox,
 with only --caps.drop=all and --nonewprivs. Programs that raise user privileges are not supported
 in order to allow strace to run. Chromium and Chromium-based browsers will not work.
@@ -164,7 +155,19 @@ in order to allow strace to run. Chromium and Chromium-based browsers will not w
 .br
 Example:
 .br
-$ firejail --build vlc ~/Videos/test.mp4
+$ firejail --build=profile-file vlc ~/Videos/test.mp4
+.TP
+\fB\-\-build=profile-file
+The command builds a whitelisted profile, and saves it in profile-file. If /usr/bin/strace is installed on the system, it also
+builds a whitelisted seccomp profile. The program is run in a very relaxed sandbox,
+with only --caps.drop=all and --nonewprivs. Programs that raise user privileges are not supported
+in order to allow strace to run. Chromium and Chromium-based browsers will not work.
+.br
+
+.br
+Example:
+.br
+$ firejail --build=vlc.profile vlc ~/Videos/test.mp4
 .TP
 \fB\-c
 Execute command and exit.
@@ -1544,6 +1547,15 @@ $ firejail --read-only=~/test --read-write=~/test/a
 Set the maximum size of the process's virtual memory (address space) in bytes.
 
 .TP
+\fB\-\-rlimit-cpu=number
+Set the maximum limit, in seconds, for the amount of CPU time each
+sandboxed process  can consume. When the limit is reached, the processes are killed.
+
+The CPU limit is a limit on CPU seconds rather than elapsed time. CPU seconds is basically how many seconds
+the CPU has been in use and does not necessarily directly relate to the elapsed time. Linux kernel keeps
+track of CPU seconds for each process independently.
+
+.TP
 \fB\-\-rlimit-fsize=number
 Set the maximum file size that can be created by a process.
 .TP
@@ -1836,6 +1848,13 @@ $ firejail \-\-list
 3272:netblue:firejail \-\-private firefox
 .br
 $ firejail \-\-shutdown=3272
+.TP
+\fB\-\-timeout=hh:mm:ss
+Kill the sandbox automatically after the time has elapsed. The time is specified in hours/minutes/seconds format.
+.br
+
+.br
+$ firejail \-\-timeout=01:30:00 firefox
 .TP
 \fB\-\-tmpfs=dirname
 Mount a tmpfs filesystem on directory dirname. This option is available only when running the sandbox as root.

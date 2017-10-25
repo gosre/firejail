@@ -5,6 +5,8 @@ include /etc/firejail/eog.local
 # Persistent global definitions
 include /etc/firejail/globals.local
 
+# blacklist /run/user/*/bus - makes settings immutable
+
 noblacklist ~/.Steam
 noblacklist ~/.config/eog
 noblacklist ~/.local/share/Trash
@@ -34,6 +36,7 @@ shell none
 private-bin eog
 private-dev
 private-etc fonts
+private-lib
 private-tmp
 
 memory-deny-write-execute

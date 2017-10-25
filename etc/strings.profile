@@ -6,6 +6,7 @@ include /etc/firejail/strings.local
 # Persistent global definitions
 include /etc/firejail/globals.local
 
+blacklist /run/user/*/bus
 blacklist /tmp/.X11-unix
 
 ignore noroot
@@ -18,8 +19,9 @@ novideo
 shell none
 tracelog
 
-# private-bin strings - breaking on Debian
+private-bin strings
 private-dev
+private-lib
 
 memory-deny-write-execute
 

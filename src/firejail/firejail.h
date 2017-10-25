@@ -81,6 +81,8 @@
 #define RUN_WHITELIST_DEV_DIR	"/run/firejail/mnt/orig-dev"
 #define RUN_WHITELIST_OPT_DIR	"/run/firejail/mnt/orig-opt"
 #define RUN_WHITELIST_SRV_DIR   "/run/firejail/mnt/orig-srv"
+#define RUN_WHITELIST_ETC_DIR   "/run/firejail/mnt/orig-etc"
+#define RUN_WHITELIST_SHARE_DIR   "/run/firejail/mnt/orig-share"
 
 #define RUN_XAUTHORITY_FILE	"/run/firejail/mnt/.Xauthority"
 #define RUN_XAUTHORITY_SEC_FILE	"/run/firejail/mnt/sec.Xauthority"
@@ -197,7 +199,9 @@ typedef struct profile_entry_t {
 	unsigned var_dir:1;	// whitelist in /var directory
 	unsigned dev_dir:1;	// whitelist in /dev directory
 	unsigned opt_dir:1;	// whitelist in /opt directory
-        unsigned srv_dir:1;     // whitelist in /srv directory
+	unsigned srv_dir:1;	// whitelist in /srv directory
+	unsigned etc_dir:1;	// whitelist in /etc directory
+	unsigned share_dir:1;	// whitelist in /usr/share directory
 }ProfileEntry;
 
 typedef struct config_t {
@@ -245,11 +249,13 @@ typedef struct config_t {
 	char *protocol;			// protocol list
 
 	// rlimits
+	long long unsigned rlimit_cpu;
 	long long unsigned rlimit_nofile;
 	long long unsigned rlimit_nproc;
 	long long unsigned rlimit_fsize;
 	long long unsigned rlimit_sigpending;
 	long long unsigned rlimit_as;
+	unsigned timeout;	// maximum time elapsed before killing the sandbox
 
 	// cpu affinity, nice and control groups
 	uint32_t cpus;
@@ -298,7 +304,6 @@ void clear_run_files(pid_t pid);
 
 extern int arg_private;		// mount private /home
 extern int arg_private_template; // private /home template
-extern int arg_allow_private_blacklist;  // blacklist things in private directories
 extern int arg_debug;		// print debug messages
 extern int arg_debug_check_filename;		// print debug messages for filename checking
 extern int arg_debug_blacklists;	// print debug messages for blacklists
@@ -321,6 +326,7 @@ extern char *arg_caps_list;		// optional caps list
 
 extern int arg_trace;		// syscall tracing support
 extern int arg_tracelog;	// blacklist tracing support
+extern int arg_rlimit_cpu;	// rlimit cpu
 extern int arg_rlimit_nofile;	// rlimit nofile
 extern int arg_rlimit_nproc;	// rlimit nproc
 extern int arg_rlimit_fsize;	// rlimit fsize
@@ -508,6 +514,7 @@ void create_empty_file_as_root(const char *dir, mode_t mode);
 int set_perms(const char *fname, uid_t uid, gid_t gid, mode_t mode);
 void mkdir_attr(const char *fname, mode_t mode, uid_t uid, gid_t gid);
 char *read_text_file_or_exit(const char *fname);
+unsigned extract_timeout(const char *str);
 
 // fs_var.c
 void fs_var_log(void);	// mounting /var/log

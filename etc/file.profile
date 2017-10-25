@@ -6,6 +6,7 @@ include /etc/firejail/file.local
 # Persistent global definitions
 include /etc/firejail/globals.local
 
+blacklist /run/user/*/bus
 blacklist /tmp/.X11-unix
 
 include /etc/firejail/disable-common.inc
@@ -31,6 +32,7 @@ x11 none
 private-bin file
 private-dev
 private-etc magic.mgc,magic,localtime
+private-lib
 
 memory-deny-write-execute
 noexec ${HOME}

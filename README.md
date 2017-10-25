@@ -98,14 +98,23 @@ Use this issue to request new profiles: [#1139](https://github.com/netblue30/fir
 `````
 # Current development version: 0.9.51
 
-## Whitelisting /var
+## Whitelisting, globbing etc.
 
 Add "include /etc/firejail/whitelist-var-common.inc" to an application profile and test it. If it's working,
 send a pull request. I did it so far for some more common applications like Firefox, Chromium etc.
 
+Added globbing support for --private-bin. Added whitelisting support for /etc and /usr/share.
+
+--private-lib was enhanced to autodetect GTK2, GTK3 and Qt4 libraries. We do a test run with this option enabled
+for the following applications: evince, galculator, gnome-calculator,
+    leafpad, mousepad, transmission-gtk, xcalc, xmr-stak-cpu,
+    atril, mate-color-select, tar, file, strings, gpicview,
+    eom, eog, gedit, pluma
+
 ## Profile build  tool
 `````
 $ firejail --build appname
+$ firejail --build=appname.profile appname
 `````
 The command builds a whitelisted profile. If /usr/bin/strace is installed on the system, it also
 builds a whitelisted seccomp profile. The program is run in a very relaxed sandbox,
@@ -162,7 +171,7 @@ shell none
 $
 `````
 
-## New command line options
+## New command line and profile options
 `````
       --writable-run-user
               This    options    disables   the   default   blacklisting   of
@@ -170,6 +179,28 @@ $
 
               Example:
               $ sudo firejail --writable-run-user
+
+       --rlimit-as=number
+              Set the maximum size of the process's virtual  memory  (address
+              space) in bytes.
+
+       --rlimit-cpu=number
+              Set  the  maximum limit, in seconds, for the amount of CPU time
+              each sandboxed process  can consume. When the limit is reached,
+              the processes are killed.
+
+              The  CPU  limit  is  a limit on CPU seconds rather than elapsed
+              time. CPU seconds is basically how many  seconds  the  CPU  has
+              been  in  use  and  does not necessarily directly relate to the
+              elapsed time. Linux kernel keeps track of CPU seconds for  each
+              process independently.
+
+       --timeout=hh:mm:ss
+              Kill  the sandbox automatically after the time has elapsed. The
+              time is specified in hours/minutes/seconds format.
+
+              $ firejail --timeout=01:30:00 firefox
+
 `````
 
 ## New profiles:
@@ -181,4 +212,7 @@ calligrawords, cin, dooble, dooble-qt4, fetchmail, freecad, freecadcmd, google-e
 imagej, karbon, kdenlive, krita, linphone, lmms, macrofusion, mpd, natron, Natron,
 ricochet, shotcut, teamspeak3, tor, tor-browser-en, Viber, x-terminal-emulator, zart,
 conky, arch-audit, ffmpeg, bluefish, cliqz, cinelerra, openshot-qt, pinta, uefitool,
-aosp, pdfmod, gnome-ring, signal-dekstop, xcalc, zaproxy
+aosp, pdfmod, gnome-ring, signal-desktop, xcalc, zaproxy
+
+Upstreamed many profiles from the following sources: https://github.com/chiraag-nataraj/firejail-profiles,
+https://github.com/nyancat18/fe, and https://aur.archlinux.org/packages/firejail-profiles.
